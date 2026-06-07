@@ -2,10 +2,14 @@
 from __future__ import annotations
 
 import logging
+from pathlib import Path
 
 from fastapi import FastAPI
+from fastapi.responses import FileResponse
 
 from .api.rotas import router
+
+STATIC_DIR = Path(__file__).parent / "static"
 
 logging.basicConfig(level=logging.INFO)
 
@@ -20,6 +24,12 @@ app = FastAPI(
 )
 
 app.include_router(router)
+
+
+@app.get("/", include_in_schema=False)
+def index() -> FileResponse:
+    """Serve a interface web para o usuário final."""
+    return FileResponse(STATIC_DIR / "index.html")
 
 
 @app.get("/health", tags=["Infra"])

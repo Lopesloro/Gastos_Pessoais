@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Controle de Gastos Pessoais</title>
+  <style>
+    :root {
+      --verde: #16a34a;
+      --vermelho: #dc2626;
+      --azul: #2563eb;
+      --cinza: #64748b;
+      --fundo: #f1f5f9;
+      --card: #ffffff;
+      --borda: #e2e8f0;
+      --texto: #0f172a;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      background: var(--fundo);
+      color: var(--texto);
+      line-height: 1.5;
+      padding: 24px 16px 48px;
+    }
+    .container { max-width: 920px; margin: 0 auto; }
+    header { text-align: center; margin-bottom: 28px; }
+    header h1 { font-size: 1.8rem; }
+    header p { color: var(--cinza); margin-top: 4px; }
+
+    .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
+    .card-resumo {
+      background: var(--card); border: 1px solid var(--borda);
+      border-radius: 14px; padding: 18px; text-align: center;
+    }
+    .card-resumo .rotulo { font-size: .8rem; color: var(--cinza); text-transform: uppercase; letter-spacing: .04em; }
+    .card-resumo .valor { font-size: 1.5rem; font-weight: 700; margin-top: 6px; }
+    .valor.receita { color: var(--verde); }
+    .valor.despesa { color: var(--vermelho); }
+    .valor.saldo { color: var(--azul); }
+
+    .grid { display: grid; grid-template-columns: 1fr 1.3fr; gap: 20px; align-items: start; }
+    @media (max-width: 760px) { .grid, .cards { grid-template-columns: 1fr; } }
+
+    .painel {
+      background: var(--card); border: 1px solid var(--borda);
+      border-radius: 14px; padding: 20px;
+    }
+    .painel h2 { font-size: 1.1rem; margin-bottom: 14px; }
+
+    label { display: block; font-size: .85rem; font-weight: 600; margin: 12px 0 4px; }
+    input, select {
+      width: 100%; padding: 10px 12px; border: 1px solid var(--borda);
+      border-radius: 9px; font-size: .95rem; background: #fff;
+    }
+    .linha { display: flex; gap: 10px; }
+    .linha > div { flex: 1; }
+    button {
+      width: 100%; margin-top: 18px; padding: 12px; border: none;
+      border-radius: 9px; background: var(--azul); color: #fff;
+      font-size: 1rem; font-weight: 600; cursor: pointer;
+    }
+    button:hover { background: #1d4ed8; }
+
+    .alerta {
+      display: none; margin-top: 14px; padding: 12px 14px;
+      background: #fef2f2; border: 1px solid #fecaca; color: var(--vermelho);
+      border-radius: 9px; font-size: .9rem; font-weight: 600;
+    }
+
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid var(--borda); }
+    th { color: var(--cinza); font-size: .78rem; text-transform: uppercase; }
+    .tag { padding: 2px 9px; border-radius: 999px; font-size: .72rem; font-weight: 700; }
+    .tag.RECEITA { background: #dcfce7; color: var(--verde); }
+    .tag.DESPESA { background: #fee2e2; color: var(--vermelho); }
+    td.valor-receita { color: var(--verde); font-weight: 600; }
+    td.valor-despesa { color: var(--vermelho); font-weight: 600; }
+    .vazio { color: var(--cinza); text-align: center; padding: 20px; }
+    footer { text-align: center; color: var(--cinza); font-size: .8rem; margin-top: 28px; }
+    footer a { color: var(--azul); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>💰 Controle de Gastos Pessoais</h1>
+      <p>Registre suas receitas e despesas e acompanhe o resumo do mês</p>
+    </header>
+
+    <section class="cards">
+      <div class="card-resumo">
+        <div class="rotulo">Receitas</div>
+        <div class="valor receita" id="card-receitas">R$ 0,00</div>
+      </div>
+      <div class="card-resumo">
+        <div class="rotulo">Despesas</div>
+        <div class="valor despesa" id="card-despesas">R$ 0,00</div>
+      </div>
+      <div class="card-resumo">
+        <div class="rotulo">Saldo</div>
+        <div class="valor saldo" id="card-saldo">R$ 0,00</div>
+      </div>
+    </section>
+
+    <div class="grid">
+      <div class="painel">
+        <h2>Nova transação</h2>
+        <form id="form">
+          <div class="linha">
+            <div>
+              <label for="tipo">Tipo</label>
+              <select id="tipo" required>
+                <option value="DESPESA">Despesa</option>
+                <option value="RECEITA">Receita</option>
+              </select>
+            </div>
+            <div>
+              <label for="valor">Valor (R$)</label>
+              <input type="number" id="valor" step="0.01" min="0.01" placeholder="0,00" required />
+            </div>
+          </div>
+          <label for="descricao">Descrição</label>
+          <input type="text" id="descricao" placeholder="Ex.: Mercado" required />
+          <label for="categoria">Categoria</label>
+          <input type="text" id="categoria" placeholder="Ex.: Alimentação" required />
+          <label for="data">Data</label>
+          <input type="date" id="data" required />
+          <button type="submit">Adicionar</button>
+          <div class="alerta" id="alerta">⚠️ Atenção: os gastos do mês ultrapassaram o limite do orçamento!</div>
+        </form>
+      </div>
+
+      <div class="painel">
+        <h2>Transações do mês</h2>
+        <table>
+          <thead>
+            <tr><th>Tipo</th><th>Descrição</th><th>Categoria</th><th>Data</th><th>Valor</th></tr>
+          </thead>
+          <tbody id="lista">
+            <tr><td colspan="5" class="vazio">Nenhuma transação ainda.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <footer>
+      Documentação técnica da API: <a href="/docs" target="_blank">/docs</a> ·
+      <a href="/redoc" target="_blank">/redoc</a>
+    </footer>
+  </div>
+
+  <script>
+    const fmt = (n) => Number(n).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+    const hoje = new Date();
+    document.getElementById("data").value = hoje.toISOString().slice(0, 10);
+
+    async function carregar() {
+      const mes = hoje.getMonth() + 1;
+      const ano = hoje.getFullYear();
+
+      // Resumo do mês
+      const resumo = await fetch(`/resumo/mensal?mes=${mes}&ano=${ano}`).then(r => r.json());
+      document.getElementById("card-receitas").textContent = fmt(resumo.total_receitas);
+      document.getElementById("card-despesas").textContent = fmt(resumo.total_despesas);
+      document.getElementById("card-saldo").textContent = fmt(resumo.saldo);
+
+      // Lista de transações (somente do mês corrente)
+      const todas = await fetch("/transacoes").then(r => r.json());
+      const doMes = todas.filter(t => {
+        const d = new Date(t.data + "T00:00:00");
+        return d.getMonth() + 1 === mes && d.getFullYear() === ano;
+      });
+      const corpo = document.getElementById("lista");
+      if (doMes.length === 0) {
+        corpo.innerHTML = '<tr><td colspan="5" class="vazio">Nenhuma transação ainda.</td></tr>';
+        return;
+      }
+      corpo.innerHTML = doMes.map(t => `
+        <tr>
+          <td><span class="tag ${t.tipo}">${t.tipo === "RECEITA" ? "Receita" : "Despesa"}</span></td>
+          <td>${t.descricao}</td>
+          <td>${t.categoria}</td>
+          <td>${new Date(t.data + "T00:00:00").toLocaleDateString("pt-BR")}</td>
+          <td class="${t.tipo === "RECEITA" ? "valor-receita" : "valor-despesa"}">
+            ${t.tipo === "RECEITA" ? "+" : "-"} ${fmt(t.valor)}
+          </td>
+        </tr>`).join("");
+    }
+
+    document.getElementById("form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const corpo = {
+        tipo: document.getElementById("tipo").value,
+        descricao: document.getElementById("descricao").value,
+        valor: document.getElementById("valor").value,
+        categoria: document.getElementById("categoria").value,
+        data: document.getElementById("data").value,
+      };
+      const resp = await fetch("/transacoes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(corpo),
+      });
+      if (!resp.ok) {
+        const erro = await resp.json().catch(() => ({}));
+        alert("Não foi possível salvar: " + (erro.detail || resp.status));
+        return;
+      }
+      const dado = await resp.json();
+      document.getElementById("alerta").style.display = dado.alerta_orcamento ? "block" : "none";
+      e.target.reset();
+      document.getElementById("data").value = hoje.toISOString().slice(0, 10);
+      carregar();
+    });
+
+    carregar();
+  </script>
+</body>
+</html>
