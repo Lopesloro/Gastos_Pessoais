@@ -1,0 +1,298 @@
+openapi: 3.1.0
+info:
+  title: Controle de Gastos Pessoais
+  description: API REST para registrar receitas e despesas por categoria e ver resumos
+    mensais. Projeto acadêmico demonstrando Clean Architecture, SOLID, Clean Code
+    e padrões GoF (Factory, Strategy, Observer).
+  version: 1.0.0
+paths:
+  /categorias:
+    get:
+      tags:
+      - Categorias
+      summary: Listar Categorias
+      operationId: listar_categorias_categorias_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/CategoriaOut'
+                type: array
+                title: Response Listar Categorias Categorias Get
+    post:
+      tags:
+      - Categorias
+      summary: Criar Categoria
+      operationId: criar_categoria_categorias_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoriaIn'
+        required: true
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoriaOut'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /transacoes:
+    get:
+      tags:
+      - Transações
+      summary: Listar Transacoes
+      operationId: listar_transacoes_transacoes_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/TransacaoOut'
+                type: array
+                title: Response Listar Transacoes Transacoes Get
+    post:
+      tags:
+      - Transações
+      summary: Registrar Transacao
+      operationId: registrar_transacao_transacoes_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransacaoIn'
+        required: true
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransacaoCriadaOut'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /resumo/mensal:
+    get:
+      tags:
+      - Resumo
+      summary: Resumo Mensal
+      operationId: resumo_mensal_resumo_mensal_get
+      parameters:
+      - name: mes
+        in: query
+        required: true
+        schema:
+          type: integer
+          maximum: 12
+          minimum: 1
+          title: Mes
+      - name: ano
+        in: query
+        required: true
+        schema:
+          type: integer
+          maximum: 2100
+          minimum: 2000
+          title: Ano
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                title: Response Resumo Mensal Resumo Mensal Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /resumo/por-categoria:
+    get:
+      tags:
+      - Resumo
+      summary: Resumo Por Categoria
+      operationId: resumo_por_categoria_resumo_por_categoria_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                title: Response Resumo Por Categoria Resumo Por Categoria Get
+  /health:
+    get:
+      tags:
+      - Infra
+      summary: Health
+      operationId: health_health_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                title: Response Health Health Get
+components:
+  schemas:
+    CategoriaIn:
+      properties:
+        nome:
+          type: string
+          minLength: 1
+          title: Nome
+          examples:
+          - Alimentação
+      type: object
+      required:
+      - nome
+      title: CategoriaIn
+    CategoriaOut:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        nome:
+          type: string
+          title: Nome
+      type: object
+      required:
+      - id
+      - nome
+      title: CategoriaOut
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    TipoTransacao:
+      type: string
+      enum:
+      - RECEITA
+      - DESPESA
+      title: TipoTransacao
+      description: Tipos possíveis de uma transação financeira.
+    TransacaoCriadaOut:
+      properties:
+        transacao:
+          $ref: '#/components/schemas/TransacaoOut'
+        alerta_orcamento:
+          type: boolean
+          title: Alerta Orcamento
+          description: True se esta despesa estourou o limite mensal.
+      type: object
+      required:
+      - transacao
+      - alerta_orcamento
+      title: TransacaoCriadaOut
+    TransacaoIn:
+      properties:
+        tipo:
+          $ref: '#/components/schemas/TipoTransacao'
+        descricao:
+          type: string
+          minLength: 1
+          title: Descricao
+          examples:
+          - Almoço
+        valor:
+          anyOf:
+          - type: number
+            exclusiveMinimum: 0.0
+          - type: string
+          title: Valor
+          examples:
+          - '35.90'
+        categoria:
+          type: string
+          minLength: 1
+          title: Categoria
+          examples:
+          - Alimentação
+        data:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: Data
+      type: object
+      required:
+      - tipo
+      - descricao
+      - valor
+      - categoria
+      title: TransacaoIn
+    TransacaoOut:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        tipo:
+          $ref: '#/components/schemas/TipoTransacao'
+        descricao:
+          type: string
+          title: Descricao
+        valor:
+          type: string
+          title: Valor
+        categoria:
+          type: string
+          title: Categoria
+        data:
+          type: string
+          format: date
+          title: Data
+      type: object
+      required:
+      - id
+      - tipo
+      - descricao
+      - valor
+      - categoria
+      - data
+      title: TransacaoOut
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
