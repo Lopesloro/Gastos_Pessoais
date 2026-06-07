@@ -66,7 +66,7 @@ o total mensal exceder o limite deve disparar alerta. Verificado pelo teste
 
 | Atributo | Por que não é prioridade aqui |
 |----------|-------------------------------|
-| Performance / Eficiência | Um usuário local, dados em memória; latência já é desprezível. |
+| Performance / Eficiência | Um usuário local com SQLite; latência já é desprezível. |
 | Escalabilidade | Não há requisito de múltiplos usuários simultâneos no escopo. |
 | Segurança | Sem dados sensíveis de terceiros nem multiusuário no escopo atual (autenticação fica registrada como evolução futura — ver doc de API). |
 | Portabilidade | Atendida de graça pela abstração de repositório, mas não é o foco. |
@@ -75,6 +75,6 @@ o total mensal exceder o limite deve disparar alerta. Verificado pelo teste
 
 | Decisão | Ganho (atributo favorecido) | Custo aceito |
 |---------|-----------------------------|--------------|
-| Armazenamento em memória | Simplicidade, testabilidade | Sem persistência entre execuções |
+| Armazenamento em SQLite | Persistência simples, sem servidor externo | Sem suporte a múltiplos escritores simultâneos |
 | Camadas + abstrações | Manutenibilidade, testabilidade | Mais arquivos/indireção num domínio pequeno |
 | FastAPI/Pydantic na borda | Confiabilidade (validação), usabilidade da API | Acoplamento da camada `api/` ao framework (isolado) |

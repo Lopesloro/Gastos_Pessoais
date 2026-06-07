@@ -68,8 +68,8 @@ O caso de uso (alto nível) depende da **abstração** `TransacaoRepository`
 # application/servicos.py  (alto nível)
 def __init__(self, transacao_repo: TransacaoRepository): ...
 
-# infrastructure/repositorios_memoria.py  (baixo nível)
-class TransacaoRepositoryMemoria(TransacaoRepository): ...
+# infrastructure/repositorios_sqlite.py  (baixo nível)
+class TransacaoRepositorySQLite(TransacaoRepository): ...
 
 # api/dependencias.py  (composition root injeta a concreta)
 TransacaoService(_transacao_repo, _categoria_repo, _monitor)

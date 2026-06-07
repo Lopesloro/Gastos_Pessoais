@@ -20,10 +20,13 @@ Práticas de código limpo presentes no projeto, com exemplos reais.
   root, não um `2000` espalhado pelo código.
 - Tipos de transação são um `Enum` (`TipoTransacao`), não strings soltas.
 
-## Comentários explicam o "porquê", não o "o quê"
-- Os comentários de cada módulo justificam **a decisão de design** (por que a
-  porta está no domínio, por que o Observer desacopla o canal de alerta), em
-  vez de repetir o que o código já diz.
+## Ausência de comentários redundantes
+- O código é **autoexplicativo**: nomes descritivos e funções pequenas tornam
+  comentários desnecessários. Não há comentários repetindo o que o código já
+  diz — alinhado ao princípio de R. C. Martin de que o melhor comentário é o
+  que você não precisou escrever porque o código já é claro.
+- O "porquê" das decisões de design fica registrado na **documentação e nos
+  ADRs**, não espalhado em comentários no código.
 
 ## Tratamento de erros próximo da borda
 - As invariantes do domínio falham cedo (`__post_init__` valida valor > 0 e

@@ -256,8 +256,8 @@ detalhes. <strong>Aplicação:</strong></p>
 <pre><code># application/servicos.py  (alto nível)
 def __init__(self, transacao_repo: TransacaoRepository): ...
 
-# infrastructure/repositorios_memoria.py  (baixo nível)
-class TransacaoRepositoryMemoria(TransacaoRepository): ...
+# infrastructure/repositorios_sqlite.py  (baixo nível)
+class TransacaoRepositorySQLite(TransacaoRepository): ...
 
 # api/dependencias.py  (composition root injeta a concreta)
 TransacaoService(_transacao_repo, _categoria_repo, _monitor)</code></pre>
@@ -283,8 +283,10 @@ independentes de infraestrutura.</p>
   criar só na <code>TransacaoFactory</code>.</li>
   <li><strong>Baixo acoplamento, alta coesão:</strong> camadas isoladas;
   domínio sem <code>import</code> de FastAPI.</li>
-  <li><strong>Comentários explicam o "porquê":</strong> os cabeçalhos de módulo
-  justificam decisões de design, não repetem o código.</li>
+  <li><strong>Ausência de comentários redundantes:</strong> o código se
+  autoexplica por nomes descritivos e funções pequenas; não há comentários
+  repetindo o que o código já diz (princípio de R. C. Martin — "o comentário é,
+  no melhor caso, um mal necessário").</li>
   <li><strong>Tratamento de erros explícito:</strong> invariantes validadas em
   <code>__post_init__</code> (falha cedo); API traduz <code>ValueError</code>
   em <code>HTTP 422</code>.</li>
@@ -348,12 +350,12 @@ recursos com CRUD claro — REST mapeia isso naturalmente; GraphQL/gRPC seriam
 sobredimensionados.</p>
 <table>
   <tr><th>Método</th><th>Rota</th><th>Descrição</th></tr>
-  <tr><td>POST</td><td>/categorias</td><td>Cria categoria</td></tr>
-  <tr><td>GET</td><td>/categorias</td><td>Lista categorias</td></tr>
-  <tr><td>POST</td><td>/transacoes</td><td>Registra receita/despesa (avalia orçamento)</td></tr>
-  <tr><td>GET</td><td>/transacoes</td><td>Lista transações</td></tr>
-  <tr><td>GET</td><td>/resumo/mensal</td><td>Resumo mensal (Strategy)</td></tr>
-  <tr><td>GET</td><td>/resumo/por-categoria</td><td>Saldo por categoria (Strategy)</td></tr>
+  <tr><td>POST</td><td>/api/v1/categorias</td><td>Cria categoria</td></tr>
+  <tr><td>GET</td><td>/api/v1/categorias</td><td>Lista categorias</td></tr>
+  <tr><td>POST</td><td>/api/v1/transacoes</td><td>Registra receita/despesa (avalia orçamento)</td></tr>
+  <tr><td>GET</td><td>/api/v1/transacoes</td><td>Lista transações</td></tr>
+  <tr><td>GET</td><td>/api/v1/resumo/mensal</td><td>Resumo mensal (Strategy)</td></tr>
+  <tr><td>GET</td><td>/api/v1/resumo/por-categoria</td><td>Saldo por categoria (Strategy)</td></tr>
 </table>
 <p><strong>Versionamento:</strong> por caminho de URL (<code>/api/v1</code>);
 mudanças retrocompatíveis não incrementam a versão; quebras geram
@@ -475,16 +477,17 @@ independentes de banco. O Strategy e o Observer pagaram seu custo de indireção
 ao tornar resumos e alertas extensíveis sem modificar código existente.</p>
 <p><strong>Limitações e próximos passos.</strong></p>
 <ul>
-  <li><strong>Persistência:</strong> dados em memória não sobrevivem ao
-  reinício; o próximo passo é o adaptador SQLite/PostgreSQL (já viabilizado
-  pela porta abstrata).</li>
+  <li><strong>Concorrência:</strong> o SQLite atende ao escopo mono-usuário,
+  mas não suporta múltiplos escritores simultâneos; a evolução para
+  PostgreSQL já está viabilizada pela porta abstrata (trocar uma classe).</li>
   <li><strong>Autenticação/multiusuário:</strong> fora do escopo atual; evolução
   com OAuth2 + JWT.</li>
   <li><strong>Cobertura de testes:</strong> ampliar para casos de borda e
   incluir medição de cobertura.</li>
   <li><strong>O que faríamos diferente:</strong> introduzir a porta de
-  persistência com um adaptador SQLite desde o início, mantendo a simplicidade,
-  para já entregar dados persistentes.</li>
+  persistência com o adaptador SQLite desde o primeiro commit, em vez de
+  começar em memória e migrar depois — embora a migração tenha custado apenas
+  uma classe nova, justamente por causa da Inversão de Dependência.</li>
 </ul>
 </div>
 

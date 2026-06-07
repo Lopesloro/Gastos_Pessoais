@@ -49,7 +49,7 @@ núcleo, nunca o contrário.
 | Domínio | `src/app/domain/` | nada | Entidades (`Categoria`, `Transacao`, `Receita`, `Despesa`), regras de negócio invariantes e **interfaces** de repositório (portas). |
 | Aplicação | `src/app/application/` | só o domínio | Casos de uso (`TransacaoService`, `ResumoService`, `CategoriaService`). Orquestram entidades e padrões. |
 | Padrões | `src/app/patterns/` | domínio | Factory, Strategy, Observer — peças reutilizáveis de design. |
-| Infraestrutura | `src/app/infrastructure/` | domínio | Adaptadores que implementam as portas (repositórios em memória). |
+| Infraestrutura | `src/app/infrastructure/` | domínio | Adaptadores que implementam as portas: SQLite (produção) e memória (testes). |
 | Interface (API) | `src/app/api/` | aplicação + domínio | FastAPI: rotas, schemas (DTOs) e *composition root* (injeção de dependência). |
 
 ## A regra de dependência na prática
@@ -75,8 +75,9 @@ Quem decide qual implementação concreta entra é o *composition root*
 ## Decisões arquiteturais (ADRs)
 
 As decisões estão registradas em [`/adrs`](../adrs/), incluindo uma decisão
-**revertida** (ADR-005: SQLite → PostgreSQL adiada, mantido armazenamento
-abstrato em memória) para evidenciar a evolução do raciocínio arquitetural.
+que **evoluiu** ao longo do desenvolvimento (ADR-005: memória → SQLite
+implementado → PostgreSQL como evolução futura) para evidenciar a evolução do
+raciocínio arquitetural.
 
 ## Diagrama de fluxo de uma requisição
 
