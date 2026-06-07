@@ -1,0 +1,32 @@
+%% Diagrama de Sequência - Fluxo central: registrar uma despesa
+%% Demonstra Factory (criação) e Observer (alerta de orçamento) em ação.
+sequenceDiagram
+    actor U as Usuário
+    participant W as Interface Web
+    participant R as rotas.py (API)
+    participant S as TransacaoService
+    participant F as TransacaoFactory
+    participant Repo as TransacaoRepository
+    participant M as MonitorDeOrcamento
+    participant O as AlertaObserver(es)
+
+    U->>W: preenche e envia despesa
+    W->>R: POST /transacoes (JSON)
+    R->>R: valida com schema Pydantic
+    R->>S: registrar(tipo, valor, categoria, ...)
+    S->>F: criar(DESPESA, ...)
+    F-->>S: objeto Despesa
+    S->>Repo: salvar(despesa)
+    Repo-->>S: ok
+    S->>S: total_despesas_do_mes()
+    S->>M: avaliar(total_gasto_mes)
+    alt total > limite mensal
+        M->>O: notificar(total, limite)
+        O-->>M: alerta registrado
+        M-->>S: true (estourou)
+    else dentro do limite
+        M-->>S: false
+    end
+    S-->>R: (transacao, alerta_orcamento)
+    R-->>W: 201 Created + alerta_orcamento
+    W-->>U: atualiza tela + aviso (se houver)

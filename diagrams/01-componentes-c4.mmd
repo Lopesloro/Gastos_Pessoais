@@ -1,0 +1,55 @@
+%% Diagrama de Componentes (estilo C4 - Nível 3) - Controle de Gastos Pessoais
+%% Mostra a organização interna do monólito modular em camadas (Clean Architecture).
+flowchart TB
+    Usuario([Usuário final])
+    Navegador["Interface Web<br/>(static/index.html)"]
+
+    subgraph API["Camada de Interface — api/"]
+        Rotas["rotas.py<br/>(controllers REST)"]
+        Schemas["schemas.py<br/>(DTOs Pydantic)"]
+        DI["dependencias.py<br/>(Composition Root)"]
+    end
+
+    subgraph APP["Camada de Aplicação — application/"]
+        TServ["TransacaoService"]
+        RServ["ResumoService"]
+        CServ["CategoriaService"]
+    end
+
+    subgraph PAT["Padrões GoF — patterns/"]
+        Factory["TransacaoFactory"]
+        Strategy["ResumoStrategy"]
+        Observer["MonitorDeOrcamento<br/>(Observer)"]
+    end
+
+    subgraph DOM["Camada de Domínio — domain/"]
+        Entidades["Entidades<br/>(Transacao, Receita, Despesa, Categoria)"]
+        Portas["Interfaces de Repositório<br/>(portas / ABC)"]
+    end
+
+    subgraph INFRA["Camada de Infraestrutura — infrastructure/"]
+        RepoMem["Repositórios em Memória<br/>(adaptadores)"]
+    end
+
+    Usuario --> Navegador --> Rotas
+    Rotas --> Schemas
+    Rotas --> TServ & RServ & CServ
+    DI -.injeta.-> TServ & RServ & CServ
+    TServ --> Factory
+    TServ --> Observer
+    RServ --> Strategy
+    TServ --> Portas
+    RServ --> Portas
+    CServ --> Portas
+    Factory --> Entidades
+    RepoMem -.implementa.-> Portas
+    Portas --> Entidades
+
+    classDef dom fill:#dcfce7,stroke:#16a34a;
+    classDef app fill:#dbeafe,stroke:#2563eb;
+    classDef infra fill:#fee2e2,stroke:#dc2626;
+    classDef pat fill:#fef9c3,stroke:#ca8a04;
+    class Entidades,Portas dom;
+    class TServ,RServ,CServ app;
+    class RepoMem infra;
+    class Factory,Strategy,Observer pat;

@@ -1,6 +1,27 @@
 # Arquitetura de Software
 
-## Estilo arquitetural escolhido
+## Plano macro — decomposição em unidades implantáveis
+
+O sistema é um **monólito modular** (uma única unidade implantável, organizada
+internamente em módulos/camadas bem separados), **não** um conjunto de
+microsserviços.
+
+**Justificativa (vinculada à seção de atributos de qualidade):**
+- O atributo prioritário é **manutenibilidade**, não escalabilidade. Não há
+  requisito de escalar partes do sistema de forma independente, o que é a
+  principal razão para adotar microsserviços.
+- **Tamanho/maturidade da equipe:** equipe pequena e domínio enxuto.
+  Microsserviços trariam custo de operação (deploys múltiplos, comunicação em
+  rede, observabilidade distribuída) sem benefício para os atributos
+  declarados — seria *over-engineering*.
+- O monólito **modular** preserva a opção futura: como cada módulo já tem
+  fronteiras claras (domínio, aplicação, infraestrutura), extrair um serviço
+  depois seria viável se o contexto mudar.
+
+> Resumo: **macro = monólito modular**; **interno = Clean Architecture em
+> camadas** (detalhado a seguir).
+
+## Plano interno — estilo arquitetural escolhido
 
 **Clean Architecture / Arquitetura em Camadas** (variante hexagonal — portas e
 adaptadores). Quatro camadas concêntricas, com uma única regra: **as
@@ -53,7 +74,7 @@ Quem decide qual implementação concreta entra é o *composition root*
 
 ## Decisões arquiteturais (ADRs)
 
-As decisões estão registradas em [`docs/adr/`](adr/), incluindo uma decisão
+As decisões estão registradas em [`/adrs`](../adrs/), incluindo uma decisão
 **revertida** (ADR-005: SQLite → PostgreSQL adiada, mantido armazenamento
 abstrato em memória) para evidenciar a evolução do raciocínio arquitetural.
 

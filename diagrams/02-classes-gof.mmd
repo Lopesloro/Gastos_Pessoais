@@ -1,0 +1,68 @@
+%% Diagrama de Classes - Padrões GoF aplicados
+%% Factory Method, Strategy e Observer.
+classDiagram
+    %% ---------- Domínio / Factory ----------
+    class Transacao {
+        <<abstract>>
+        +descricao: str
+        +valor: Decimal
+        +categoria: Categoria
+        +data: date
+        +tipo() TipoTransacao
+        +valor_no_fluxo() Decimal
+    }
+    class Receita {
+        +tipo() RECEITA
+        +valor_no_fluxo() +valor
+    }
+    class Despesa {
+        +tipo() DESPESA
+        +valor_no_fluxo() -valor
+    }
+    class TransacaoFactory {
+        <<factory>>
+        +criar(tipo, descricao, valor, categoria, data) Transacao
+    }
+    Transacao <|-- Receita
+    Transacao <|-- Despesa
+    TransacaoFactory ..> Receita : cria
+    TransacaoFactory ..> Despesa : cria
+
+    %% ---------- Strategy ----------
+    class ResumoStrategy {
+        <<interface>>
+        +calcular(transacoes) dict
+    }
+    class ResumoMensalStrategy {
+        +calcular(transacoes) dict
+    }
+    class ResumoPorCategoriaStrategy {
+        +calcular(transacoes) dict
+    }
+    class ResumoService {
+        +gerar(strategy) dict
+    }
+    ResumoStrategy <|.. ResumoMensalStrategy
+    ResumoStrategy <|.. ResumoPorCategoriaStrategy
+    ResumoService ..> ResumoStrategy : usa
+
+    %% ---------- Observer ----------
+    class AlertaObserver {
+        <<interface>>
+        +notificar(total, limite)
+    }
+    class AlertaLogObserver {
+        +notificar(total, limite)
+    }
+    class AlertaColetorObserver {
+        +notificar(total, limite)
+    }
+    class MonitorDeOrcamento {
+        <<subject>>
+        +limite_mensal: Decimal
+        +inscrever(observador)
+        +avaliar(total_gasto) bool
+    }
+    AlertaObserver <|.. AlertaLogObserver
+    AlertaObserver <|.. AlertaColetorObserver
+    MonitorDeOrcamento o--> AlertaObserver : notifica
