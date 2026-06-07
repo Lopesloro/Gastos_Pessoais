@@ -1,45 +1,57 @@
-# ADR-005 — Persistência: de SQLite para PostgreSQL (decisão revertida)
+# ADR-005 — Persistência: SQLite implementado; PostgreSQL como evolução futura
 
-- **Status:** **Revertido / Substituído** (originalmente Aceito em 2026-06-03,
-  revertido em 2026-06-05)
-- **Data:** 2026-06-05
+- **Status:** Accepted (revisado — anteriormente Superseded)
+- **Data original:** 2026-06-03  |  **Revisão:** 2026-06-07
 
-> Este ADR documenta intencionalmente uma **decisão que mudou ao longo do
-> tempo**, para evidenciar a evolução do raciocínio arquitetural.
+> Este ADR documenta uma **decisão que evoluiu ao longo do desenvolvimento**,
+> evidenciando o raciocínio arquitetural em movimento.
+
+## Histórico de versões
+
+| Data | Status | Decisão |
+|------|--------|---------|
+| 2026-06-03 | Accepted (v1) | Usar SQLite via repositório concreto. |
+| 2026-06-05 | Superseded | Revertido temporariamente: manter memória enquanto a porta abstrata era validada. |
+| 2026-06-07 | **Accepted (v3)** | **SQLite implementado** (`infrastructure/repositorios_sqlite.py`). PostgreSQL como evolução futura. |
 
 ## Contexto
-Para persistir transações e categorias, inicialmente decidiu-se usar **SQLite**
-(arquivo local, zero configuração) — ADR-005 v1, *Aceito* em 2026-06-03.
 
-Pouco depois, ao revisar os atributos de qualidade, levantou-se a hipótese de
-já migrar para **PostgreSQL**, antecipando concorrência e múltiplos usuários.
+O armazenamento em memória era suficiente para validar a arquitetura, mas não
+atende ao requisito de **persistência entre execuções** — um usuário que
+reinicia a aplicação perderia todos os dados.
 
-## Decisão (evolução)
-1. **v1 (2026-06-03) — Aceito:** usar SQLite via repositório concreto.
-2. **v2 (2026-06-05) — Revertido:** **não** introduzir banco agora. Para o
-   escopo (projeto acadêmico, foco em arquitetura e padrões), um banco real
-   adicionaria configuração, dependências e migrações sem agregar ao objetivo
-   da disciplina. PostgreSQL fica como evolução futura documentada.
+## Decisão
 
-A decisão final é: **manter o armazenamento atrás da porta abstrata
-`*Repository`, com implementação em memória** (`*RepositoryMemoria`).
+Implementar **SQLite** como mecanismo de persistência, usando o módulo `sqlite3`
+nativo do Python (sem ORM, sem dependência extra). O banco é criado
+automaticamente em `data/gastos.db` na primeira execução.
 
-## Por que a reversão foi barata
-Graças ao ADR-001 (Inversão de Dependência), o armazenamento sempre esteve
-atrás de uma interface. Trocar a implementação **não afeta** domínio,
-aplicação nem API. A migração futura para SQLite/PostgreSQL será:
-
-1. criar `TransacaoRepositoryPostgres(TransacaoRepository)` em
-   `infrastructure/`;
-2. trocar **uma linha** em `api/dependencias.py`.
+A troca foi realizada mudando **apenas** `api/dependencias.py` (composition root)
+e adicionando `infrastructure/repositorios_sqlite.py` — **zero alteração** em
+domínio, aplicação ou padrões. Isso comprova empiricamente que a Inversão de
+Dependência (ADR-001) funcionou.
 
 ## Consequências
-**Positivas:** projeto roda sem setup; foco no que a disciplina avalia;
-caminho de migração claro e de baixo risco.
-**Negativas:** dados não persistem entre execuções — aceitável no escopo;
-mitigado pelo design que permite plugar persistência quando necessário.
+
+**Positivas:**
+- Dados persistem entre execuções.
+- Sem dependência externa: `sqlite3` é nativo do Python 3.x.
+- Prova da resiliência arquitetural: trocar o repositório não afetou nenhuma
+  regra de negócio.
+
+**Negativas:**
+- SQLite não suporta múltiplos escritores simultâneos — sem impacto no escopo
+  mono-usuário atual.
+- SQL escrito à mão (simples para o domínio atual).
+
+## Evolução futura: PostgreSQL
+
+Migrar para PostgreSQL exigirá apenas:
+1. Criar `infrastructure/repositorios_postgres.py` implementando as mesmas portas.
+2. Trocar **uma linha** em `api/dependencias.py`.
 
 ## Alternativas consideradas
-- *SQLite agora* (v1): persistência simples, mas adiciona migrações/ORM sem
-  ganho para os objetivos atuais. Adiada.
-- *PostgreSQL agora*: superdimensionado para o escopo. Rejeitada por ora.
+
+- *Permanecer em memória*: dados não persistem — rejeitada.
+- *PostgreSQL diretamente*: servidor externo sem ganho no escopo atual — adiada.
+- *SQLAlchemy (ORM)*: dependência desnecessária para domínio pequeno — rejeitada.

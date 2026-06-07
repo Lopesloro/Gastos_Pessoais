@@ -1,9 +1,9 @@
 """Composition root: monta o grafo de objetos e injeta dependências.
 
-É o único lugar que conhece as implementações concretas (repositórios em
-memória, observers concretos). Todas as outras camadas recebem suas
-dependências por construtor. Trocar o armazenamento ou os canais de alerta
-significa mudar apenas este arquivo.
+É o único lugar que conhece as implementações concretas (repositórios SQLite,
+observers concretos). Todas as outras camadas recebem suas dependências por
+construtor. Trocar o armazenamento ou os canais de alerta significa mudar
+apenas este arquivo — efeito direto do princípio de Inversão de Dependência.
 """
 from __future__ import annotations
 
@@ -14,9 +14,10 @@ from ..application.servicos import (
     ResumoService,
     TransacaoService,
 )
-from ..infrastructure.repositorios_memoria import (
-    CategoriaRepositoryMemoria,
-    TransacaoRepositoryMemoria,
+from ..infrastructure.repositorios_sqlite import (
+    CategoriaRepositorySQLite,
+    TransacaoRepositorySQLite,
+    inicializar_banco,
 )
 from ..patterns.observer import (
     AlertaColetorObserver,
@@ -24,12 +25,14 @@ from ..patterns.observer import (
     MonitorDeOrcamento,
 )
 
+# Garante que as tabelas existam antes de qualquer requisição.
+inicializar_banco()
+
 # Limite mensal de despesas (orçamento). Em produção viria de configuração.
 LIMITE_MENSAL = Decimal("2000.00")
 
-# Instâncias únicas (singletons simples) que persistem durante a execução.
-_categoria_repo = CategoriaRepositoryMemoria()
-_transacao_repo = TransacaoRepositoryMemoria()
+_categoria_repo = CategoriaRepositorySQLite()
+_transacao_repo = TransacaoRepositorySQLite()
 
 _coletor_alertas = AlertaColetorObserver()
 _monitor = MonitorDeOrcamento(LIMITE_MENSAL)
