@@ -51,17 +51,18 @@
 
 <!-- ===================== CAPA ===================== -->
 <div class="capa">
-  <div class="inst"><span class="ph">[NOME DA INSTITUIÇÃO]</span></div>
-  <div class="inst" style="font-size:11pt"><span class="ph">[NOME DA DISCIPLINA]</span></div>
+  <div class="inst">Pontifícia Universidade Católica de Campinas — PUC-Campinas</div>
+  <div class="inst" style="font-size:11pt">Padrões e Arquitetura de Software</div>
   <div class="titulo">Controle de Gastos Pessoais</div>
   <div class="sub">Projeto de software com arquitetura justificada,<br/>SOLID, Clean Code e padrões de projeto GoF</div>
   <div class="bloco">
     <strong>Integrantes do grupo:</strong><br/>
-    <span class="ph">[INTEGRANTE 1]</span> · <span class="ph">[INTEGRANTE 2]</span> ·
-    <span class="ph">[INTEGRANTE 3]</span><br/>
-    <span class="ph">[INTEGRANTE 4]</span> · <span class="ph">[INTEGRANTE 5]</span> ·
-    <span class="ph">[INTEGRANTE 6]</span><br/><br/>
-    <strong>Professor(a):</strong> <span class="ph">[NOME DO PROFESSOR]</span><br/>
+    Gabriel Lopes Londe Rodrigues — RA: 24005520<br/>
+    Nicolas Marques Linares — RA: 24015266<br/>
+    Matheus Roçafa — RA: 23028589<br/>
+    Felipe Andretta — RA: 23007744<br/>
+    João Victor Lunardini — RA: <em>(a preencher)</em><br/><br/>
+    <strong>Professor:</strong> Douglas Henrique Siqueira Abreu<br/>
     <strong>Repositório:</strong> https://github.com/Lopesloro/Gastos_Pessoais<br/>
     <strong>Data:</strong> Junho de 2026
   </div>
@@ -82,9 +83,8 @@
   <li>Conclusões</li>
   <li>Referências Bibliográficas</li>
 </ol>
-<div class="nota">Os trechos marcados em <span class="ph">[vermelho]</span> são
-campos a preencher pelo grupo (instituição, disciplina, integrantes, professor
-e o livro-texto da disciplina nas referências).</div>
+<div class="nota">⚠️ Preencher antes da entrega: RA de João Victor Lunardini (campo
+marcado na capa) e o livro-texto da disciplina na seção de Referências.</div>
 </div>
 
 <!-- ===================== 1. INTRODUÇÃO ===================== -->
@@ -173,7 +173,7 @@ e pelo campo <code>alerta_orcamento</code> da API.</p>
   <tr><td>002</td><td>Factory Method para transações</td><td>Accepted</td><td>Centralizar criação de Receita/Despesa.</td></tr>
   <tr><td>003</td><td>Strategy para resumos</td><td>Accepted</td><td>Algoritmos de resumo intercambiáveis.</td></tr>
   <tr><td>004</td><td>Observer para alertas</td><td>Accepted</td><td>Desacoplar a regra do canal de alerta.</td></tr>
-  <tr><td>005</td><td>Persistência SQLite → PostgreSQL</td><td><strong>Superseded / Revertido</strong></td><td>Decisão modificada: banco adiado; mantido armazenamento abstrato.</td></tr>
+  <tr><td>005</td><td>SQLite implementado; PostgreSQL futuro</td><td><strong>Accepted (revisado)</strong></td><td>SQLite integrado em <code>infrastructure/repositorios_sqlite.py</code>; dados persistem entre execuções. ADR registra 3 fases da decisão.</td></tr>
 </table>
 <div class="nota">O <strong>ADR-005</strong> atende à recomendação do enunciado
 de registrar pelo menos uma <strong>decisão revertida/modificada</strong> ao
@@ -210,7 +210,7 @@ repositório (portas) ficam no domínio; a infraestrutura as implementa
   <tr><td>Domínio</td><td><code>domain/</code></td><td>Entidades, regras invariantes e portas (interfaces de repositório).</td></tr>
   <tr><td>Aplicação</td><td><code>application/</code></td><td>Casos de uso que orquestram entidades e padrões.</td></tr>
   <tr><td>Padrões</td><td><code>patterns/</code></td><td>Factory, Strategy, Observer.</td></tr>
-  <tr><td>Infraestrutura</td><td><code>infrastructure/</code></td><td>Adaptadores (repositórios em memória).</td></tr>
+  <tr><td>Infraestrutura</td><td><code>infrastructure/</code></td><td>Adaptadores concretos: <code>repositorios_sqlite.py</code> (produção, persiste em <code>data/gastos.db</code>) e <code>repositorios_memoria.py</code> (testes).</td></tr>
   <tr><td>Interface</td><td><code>api/</code></td><td>FastAPI: rotas, DTOs e composition root (injeção de dependência).</td></tr>
 </table>
 <p>Diagrama de componentes (estilo C4) na Seção 8.</p>
