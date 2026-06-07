@@ -6,12 +6,12 @@ info:
     e padrões GoF (Factory, Strategy, Observer).
   version: 1.0.0
 paths:
-  /categorias:
+  /api/v1/categorias:
     get:
       tags:
       - Categorias
       summary: Listar Categorias
-      operationId: listar_categorias_categorias_get
+      operationId: listar_categorias_api_v1_categorias_get
       responses:
         '200':
           description: Successful Response
@@ -21,12 +21,12 @@ paths:
                 items:
                   $ref: '#/components/schemas/CategoriaOut'
                 type: array
-                title: Response Listar Categorias Categorias Get
+                title: Response Listar Categorias Api V1 Categorias Get
     post:
       tags:
       - Categorias
       summary: Criar Categoria
-      operationId: criar_categoria_categorias_post
+      operationId: criar_categoria_api_v1_categorias_post
       requestBody:
         content:
           application/json:
@@ -46,12 +46,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
-  /transacoes:
+  /api/v1/transacoes:
     get:
       tags:
       - Transações
       summary: Listar Transacoes
-      operationId: listar_transacoes_transacoes_get
+      operationId: listar_transacoes_api_v1_transacoes_get
       responses:
         '200':
           description: Successful Response
@@ -61,12 +61,12 @@ paths:
                 items:
                   $ref: '#/components/schemas/TransacaoOut'
                 type: array
-                title: Response Listar Transacoes Transacoes Get
+                title: Response Listar Transacoes Api V1 Transacoes Get
     post:
       tags:
       - Transações
       summary: Registrar Transacao
-      operationId: registrar_transacao_transacoes_post
+      operationId: registrar_transacao_api_v1_transacoes_post
       requestBody:
         content:
           application/json:
@@ -86,12 +86,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
-  /resumo/mensal:
+  /api/v1/resumo/mensal:
     get:
       tags:
       - Resumo
       summary: Resumo Mensal
-      operationId: resumo_mensal_resumo_mensal_get
+      operationId: resumo_mensal_api_v1_resumo_mensal_get
       parameters:
       - name: mes
         in: query
@@ -116,19 +116,19 @@ paths:
             application/json:
               schema:
                 type: object
-                title: Response Resumo Mensal Resumo Mensal Get
+                title: Response Resumo Mensal Api V1 Resumo Mensal Get
         '422':
           description: Validation Error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
-  /resumo/por-categoria:
+  /api/v1/resumo/por-categoria:
     get:
       tags:
       - Resumo
       summary: Resumo Por Categoria
-      operationId: resumo_por_categoria_resumo_por_categoria_get
+      operationId: resumo_por_categoria_api_v1_resumo_por_categoria_get
       responses:
         '200':
           description: Successful Response
@@ -136,7 +136,7 @@ paths:
             application/json:
               schema:
                 type: object
-                title: Response Resumo Por Categoria Resumo Por Categoria Get
+                title: Response Resumo Por Categoria Api V1 Resumo Por Categoria Get
   /health:
     get:
       tags:

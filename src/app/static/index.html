@@ -202,13 +202,14 @@
     let ref = { mes: hoje.getMonth() + 1, ano: hoje.getFullYear() };
 
     // ---------- Acesso à API ----------
+    const BASE = "/api/v1";
     const Api = {
       resumoMensal: (mes, ano) =>
-        fetch(`/resumo/mensal?mes=${mes}&ano=${ano}`).then((r) => r.json()),
-      porCategoria: () => fetch("/resumo/por-categoria").then((r) => r.json()),
-      listar: () => fetch("/transacoes").then((r) => r.json()),
+        fetch(`${BASE}/resumo/mensal?mes=${mes}&ano=${ano}`).then((r) => r.json()),
+      porCategoria: () => fetch(`${BASE}/resumo/por-categoria`).then((r) => r.json()),
+      listar: () => fetch(`${BASE}/transacoes`).then((r) => r.json()),
       criar: (corpo) =>
-        fetch("/transacoes", {
+        fetch(`${BASE}/transacoes`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(corpo),

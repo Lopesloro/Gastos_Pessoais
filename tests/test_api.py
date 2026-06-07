@@ -37,7 +37,7 @@ def test_health():
 
 def test_fluxo_basico_de_transacao_e_resumo():
     r1 = client.post(
-        "/transacoes",
+        "/api/v1/transacoes",
         json={"tipo": "RECEITA", "descricao": "Salário", "valor": "3000",
               "categoria": "Salário", "data": "2026-06-01"},
     )
@@ -45,20 +45,20 @@ def test_fluxo_basico_de_transacao_e_resumo():
     assert r1.json()["alerta_orcamento"] is False
 
     r2 = client.post(
-        "/transacoes",
+        "/api/v1/transacoes",
         json={"tipo": "DESPESA", "descricao": "Mercado", "valor": "400",
               "categoria": "Alimentação", "data": "2026-06-05"},
     )
     assert r2.status_code == 201
 
-    resumo = client.get("/resumo/mensal", params={"mes": 6, "ano": 2026}).json()
+    resumo = client.get("/api/v1/resumo/mensal", params={"mes": 6, "ano": 2026}).json()
     assert resumo["total_receitas"] == "3000"
     assert resumo["total_despesas"] == "400"
 
 
 def test_valor_invalido_retorna_422():
     r = client.post(
-        "/transacoes",
+        "/api/v1/transacoes",
         json={"tipo": "DESPESA", "descricao": "x", "valor": "-5", "categoria": "Lazer"},
     )
     assert r.status_code == 422
