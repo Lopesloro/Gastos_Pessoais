@@ -1,4 +1,3 @@
-"""Ponto de entrada da aplicação FastAPI."""
 from __future__ import annotations
 
 import logging
@@ -25,12 +24,9 @@ app = FastAPI(
 
 app.include_router(router, prefix="/api/v1")
 
-
 @app.get("/", include_in_schema=False)
 def index() -> FileResponse:
-    """Serve a interface web para o usuário final."""
     return FileResponse(STATIC_DIR / "index.html")
-
 
 @app.get("/health", tags=["Infra"])
 def health() -> dict:

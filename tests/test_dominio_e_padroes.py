@@ -1,9 +1,3 @@
-"""Testes de unidade do domínio, dos padrões GoF e dos casos de uso.
-
-Note que NÃO precisamos de banco nem de servidor web para testar a regra de
-negócio — efeito direto da Inversão de Dependência e da arquitetura em
-camadas. Injetamos repositórios em memória e pronto.
-"""
 from datetime import date
 from decimal import Decimal
 
@@ -26,21 +20,14 @@ from src.app.patterns.observer import (
     MonitorDeOrcamento,
 )
 
-
-# ----- Domínio -----
-
 def test_valor_negativo_e_rejeitado():
     with pytest.raises(ValueError):
         Despesa(descricao="x", valor=Decimal("-1"), categoria=Categoria("Lazer"))
-
 
 def test_valor_no_fluxo_tem_sinal_correto():
     cat = Categoria("Salário")
     assert Receita("Salário", Decimal("100"), cat).valor_no_fluxo == Decimal("100")
     assert Despesa("Mercado", Decimal("40"), cat).valor_no_fluxo == Decimal("-40")
-
-
-# ----- Factory -----
 
 def test_factory_cria_subclasse_correta():
     cat = Categoria("Transporte")
@@ -49,20 +36,14 @@ def test_factory_cria_subclasse_correta():
     assert isinstance(receita, Receita)
     assert isinstance(despesa, Despesa)
 
-
-# ----- Observer -----
-
 def test_monitor_dispara_alerta_ao_estourar_limite():
     coletor = AlertaColetorObserver()
     monitor = MonitorDeOrcamento(Decimal("100"))
     monitor.inscrever(coletor)
 
-    assert monitor.avaliar(Decimal("80")) is False  # dentro do limite
-    assert monitor.avaliar(Decimal("150")) is True  # estourou
+    assert monitor.avaliar(Decimal("80")) is False
+    assert monitor.avaliar(Decimal("150")) is True
     assert len(coletor.mensagens) == 1
-
-
-# ----- Strategy via ResumoService -----
 
 def _service_com_dados():
     transacao_repo = TransacaoRepositoryMemoria()
@@ -75,13 +56,11 @@ def _service_com_dados():
     service.registrar(TipoTransacao.DESPESA, "Cinema", Decimal("60"), "Lazer", date(2026, 6, 7))
     return ResumoService(transacao_repo)
 
-
 def test_resumo_mensal():
     resumo = _service_com_dados().resumo_mensal(6, 2026)
     assert resumo["total_receitas"] == Decimal("3000")
     assert resumo["total_despesas"] == Decimal("460")
     assert resumo["saldo"] == Decimal("2540")
-
 
 def test_resumo_por_categoria():
     resumo = _service_com_dados().resumo_por_categoria()

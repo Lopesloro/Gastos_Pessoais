@@ -1,11 +1,3 @@
-"""Casos de uso (camada de aplicação).
-
-Orquestram entidades, repositórios e padrões para realizar as ações do
-usuário. Dependem apenas de *abstrações* (interfaces de repositório), nunca
-de implementações concretas — quem injeta o repositório concreto é a
-camada de composição (api/dependencias.py). Isso é Inversão de Dependência
-na prática e mantém os serviços testáveis isoladamente.
-"""
 from __future__ import annotations
 
 from datetime import date
@@ -21,7 +13,6 @@ from ..patterns.strategy import (
     ResumoStrategy,
 )
 
-
 class CategoriaService:
     def __init__(self, repo: CategoriaRepository) -> None:
         self._repo = repo
@@ -35,9 +26,7 @@ class CategoriaService:
     def listar(self) -> list[Categoria]:
         return self._repo.listar()
 
-
 class TransacaoService:
-    """Registra transações e dispara alertas de orçamento via Observer."""
 
     def __init__(
         self,
@@ -57,16 +46,10 @@ class TransacaoService:
         nome_categoria: str,
         data: date | None = None,
     ) -> tuple[Transacao, bool]:
-        """Registra a transação e avalia o orçamento do mês.
-
-        Retorna a transação criada e um booleano indicando se o limite do mês
-        foi estourado (alerta disparado).
-        """
         categoria = self._categoria_repo.buscar_por_nome(nome_categoria)
         if categoria is None:
             categoria = self._categoria_repo.salvar(Categoria(nome=nome_categoria.strip()))
 
-        # Factory decide a subclasse concreta (Receita/Despesa).
         transacao = TransacaoFactory.criar(tipo, descricao, valor, categoria, data)
         self._transacao_repo.salvar(transacao)
 
@@ -92,9 +75,7 @@ class TransacaoService:
             Decimal("0"),
         )
 
-
 class ResumoService:
-    """Gera resumos delegando o cálculo à Strategy escolhida."""
 
     def __init__(self, transacao_repo: TransacaoRepository) -> None:
         self._transacao_repo = transacao_repo

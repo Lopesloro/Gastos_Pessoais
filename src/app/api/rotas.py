@@ -1,9 +1,3 @@
-"""Rotas HTTP (adaptadores de interface).
-
-Traduzem requisições em chamadas de caso de uso e casos de uso em respostas.
-Nenhuma regra de negócio mora aqui — apenas orquestração fina e tradução
-de DTOs.
-"""
 from __future__ import annotations
 
 from fastapi import APIRouter, Depends, HTTPException, Query
@@ -25,7 +19,6 @@ from .schemas import (
 
 router = APIRouter()
 
-
 def _to_transacao_out(t: Transacao) -> TransacaoOut:
     return TransacaoOut(
         id=t.id,
@@ -36,7 +29,6 @@ def _to_transacao_out(t: Transacao) -> TransacaoOut:
         data=t.data,
     )
 
-
 @router.post("/categorias", response_model=CategoriaOut, status_code=201, tags=["Categorias"])
 def criar_categoria(
     body: CategoriaIn,
@@ -45,13 +37,11 @@ def criar_categoria(
     categoria = service.criar(body.nome)
     return CategoriaOut(id=categoria.id, nome=categoria.nome)
 
-
 @router.get("/categorias", response_model=list[CategoriaOut], tags=["Categorias"])
 def listar_categorias(
     service: CategoriaService = Depends(deps.get_categoria_service),
 ) -> list[CategoriaOut]:
     return [CategoriaOut(id=c.id, nome=c.nome) for c in service.listar()]
-
 
 @router.post(
     "/transacoes", response_model=TransacaoCriadaOut, status_code=201, tags=["Transações"]
@@ -76,13 +66,11 @@ def registrar_transacao(
         alerta_orcamento=alerta,
     )
 
-
 @router.get("/transacoes", response_model=list[TransacaoOut], tags=["Transações"])
 def listar_transacoes(
     service: TransacaoService = Depends(deps.get_transacao_service),
 ) -> list[TransacaoOut]:
     return [_to_transacao_out(t) for t in service.listar()]
-
 
 @router.get("/resumo/mensal", tags=["Resumo"])
 def resumo_mensal(
@@ -91,7 +79,6 @@ def resumo_mensal(
     service: ResumoService = Depends(deps.get_resumo_service),
 ) -> dict:
     return service.resumo_mensal(mes, ano)
-
 
 @router.get("/resumo/por-categoria", tags=["Resumo"])
 def resumo_por_categoria(

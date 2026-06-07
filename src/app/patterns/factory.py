@@ -1,11 +1,3 @@
-"""Padrão GoF: Factory Method.
-
-Centraliza a criação de transações. A camada de API recebe um `tipo` como
-string ("RECEITA"/"DESPESA") e delega à fábrica a decisão de qual subclasse
-concreta instanciar. Assim, quem chama não precisa conhecer Receita/Despesa,
-e adicionar um novo tipo de transação no futuro exige mudar só a fábrica
-(princípio aberto/fechado).
-"""
 from __future__ import annotations
 
 from datetime import date
@@ -18,7 +10,6 @@ from ..domain.entidades import (
     TipoTransacao,
     Transacao,
 )
-
 
 class TransacaoFactory:
     @staticmethod
@@ -36,7 +27,7 @@ class TransacaoFactory:
         }
         try:
             construtor = construtores[tipo]
-        except KeyError as exc:  # pragma: no cover - proteção
+        except KeyError as exc:
             raise ValueError(f"Tipo de transação inválido: {tipo}") from exc
 
         return construtor(

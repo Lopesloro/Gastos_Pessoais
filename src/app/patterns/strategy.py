@@ -1,11 +1,3 @@
-"""Padrão GoF: Strategy.
-
-Existe mais de uma forma de "ver o resumo" das finanças: por mês ou por
-categoria. Em vez de um `if/elif` gigante dentro do serviço, cada forma de
-cálculo é uma estratégia intercambiável que implementa a mesma interface.
-Adicionar um novo relatório (ex.: resumo anual) é criar uma nova classe,
-sem tocar nas existentes (aberto/fechado + responsabilidade única).
-"""
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
@@ -14,14 +6,11 @@ from decimal import Decimal
 
 from ..domain.entidades import TipoTransacao, Transacao
 
-
 class ResumoStrategy(ABC):
     @abstractmethod
     def calcular(self, transacoes: list[Transacao]) -> dict: ...
 
-
 class ResumoMensalStrategy(ResumoStrategy):
-    """Totais de receita, despesa e saldo de um mês/ano específicos."""
 
     def __init__(self, mes: int, ano: int) -> None:
         self.mes = mes
@@ -49,9 +38,7 @@ class ResumoMensalStrategy(ResumoStrategy):
             "quantidade_transacoes": len(do_periodo),
         }
 
-
 class ResumoPorCategoriaStrategy(ResumoStrategy):
-    """Total gasto/recebido agrupado por categoria."""
 
     def calcular(self, transacoes: list[Transacao]) -> dict:
         por_categoria: dict[str, Decimal] = defaultdict(lambda: Decimal("0"))

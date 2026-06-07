@@ -1,9 +1,3 @@
-"""Implementações de repositório com SQLite.
-
-Adaptadores concretos que satisfazem as portas definidas em domain/repositorios.py.
-O banco de dados é criado automaticamente em data/gastos.db na primeira execução.
-O módulo sqlite3 é nativo do Python — sem dependências extras.
-"""
 from __future__ import annotations
 
 import sqlite3
@@ -17,7 +11,6 @@ from ..domain.repositorios import CategoriaRepository, TransacaoRepository
 
 DB_PATH = Path(__file__).parent.parent.parent.parent / "data" / "gastos.db"
 
-
 def _conexao() -> sqlite3.Connection:
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
     conn = sqlite3.connect(DB_PATH)
@@ -25,9 +18,7 @@ def _conexao() -> sqlite3.Connection:
     conn.execute("PRAGMA foreign_keys = ON")
     return conn
 
-
 def inicializar_banco() -> None:
-    """Cria as tabelas se ainda não existirem."""
     with _conexao() as conn:
         conn.executescript("""
             CREATE TABLE IF NOT EXISTS categorias (
@@ -44,7 +35,6 @@ def inicializar_banco() -> None:
                 data       TEXT NOT NULL
             );
         """)
-
 
 class CategoriaRepositorySQLite(CategoriaRepository):
     def salvar(self, categoria: Categoria) -> Categoria:
@@ -66,7 +56,6 @@ class CategoriaRepositorySQLite(CategoriaRepository):
                 "SELECT id, nome FROM categorias WHERE LOWER(nome) = LOWER(?)", (nome,)
             ).fetchone()
         return Categoria(nome=row["nome"], id=UUID(row["id"])) if row else None
-
 
 class TransacaoRepositorySQLite(TransacaoRepository):
     def salvar(self, transacao: Transacao) -> Transacao:
