@@ -1,38 +1,80 @@
-# Atributos de Qualidade
+# Atributos de Qualidade (ISO/IEC 25010:2023)
 
-Atributos priorizados para este projeto, justificativa da prioridade e como a
-arquitetura/código os atendem de forma **demonstrável**.
+Dos oito atributos do modelo de qualidade de produto da ISO/IEC 25010:2023,
+três foram eleitos como **prioritários** para este sistema. Para cada um:
+justificativa da prioridade, decisões arquiteturais que o atendem e métrica
+observável.
 
-| Prioridade | Atributo | Por que importa aqui | Como foi atendido |
-|-----------|----------|----------------------|-------------------|
-| 1 | **Manutenibilidade** | Trabalho acadêmico que precisa evoluir (novos relatórios, novos tipos de transação, troca de banco). | Clean Architecture + SOLID + padrões GoF isolam mudanças. Ex.: novo relatório = nova `ResumoStrategy`, sem tocar no que existe. |
-| 2 | **Testabilidade** | Provar que as regras funcionam sem depender de infra. | Inversão de dependência: serviços recebem repositórios abstratos. 9 testes rodam sem banco nem servidor (`pytest -q`). |
-| 3 | **Modificabilidade / Portabilidade** | Requisito do enunciado de poder trocar o armazenamento. | Repositórios são portas (ABC). Trocar memória→PostgreSQL afeta 1 classe + 1 linha (ADR-005). |
-| 4 | **Confiabilidade / Alertas** | Estourar o orçamento sem aviso seria uma falha funcional. | Padrão Observer (`MonitorDeOrcamento`) notifica ao ultrapassar o limite; coberto por teste. |
-| 5 | **Usabilidade (DX/API)** | A API precisa ser clara para quem consome. | FastAPI gera Swagger/OpenAPI automático em `/docs`; DTOs com exemplos; validação com mensagens HTTP 422. |
+## 1º — Manutenibilidade (*Maintainability*)
 
-## Como cada atributo é evidenciado
+**Por que é o nº 1 (e não outro).** Este é um projeto acadêmico cujo objetivo
+declarado é *evoluir e demonstrar decisões de design*: novos relatórios, novos
+tipos de transação e troca de armazenamento são esperados. Performance e
+escalabilidade não são prioridade porque a carga é de um único usuário local —
+otimizá-las seria esforço sem retorno. A manutenibilidade é o atributo que o
+próprio enunciado da disciplina exercita.
 
-### Manutenibilidade e Modificabilidade
-- **Cenário:** adicionar "resumo anual".
-  **Esforço:** criar `ResumoAnualStrategy` em `patterns/strategy.py` e expor uma
-  rota. Zero alteração em entidades, repositórios ou nos outros resumos.
-- **Cenário:** adicionar tipo de transação "Investimento".
-  **Esforço:** nova subclasse + uma entrada no dicionário da `TransacaoFactory`.
+**Decisões arquiteturais que respondem a ela.**
+- Clean Architecture em camadas com a regra de dependência apontando para
+  dentro (ADR-001): mudanças em infraestrutura não tocam o domínio.
+- Padrões GoF (Factory, Strategy, Observer) isolam pontos de variação.
+- SOLID, em especial Inversão de Dependência via repositórios abstratos.
 
-### Testabilidade
-- `tests/test_dominio_e_padroes.py` injeta `*RepositoryMemoria` e testa regra
-  pura. `tests/test_api.py` usa `TestClient` sem subir servidor real.
+**Métrica observável.** Adicionar um novo relatório (ex.: resumo anual) ou um
+novo tipo de transação deve exigir alteração em **≤ 2 arquivos** e **nenhuma
+modificação** em classes existentes (apenas adição). Hoje: novo relatório = 1
+classe nova em `patterns/strategy.py`; novo tipo = 1 subclasse + 1 linha na
+fábrica.
 
-### Confiabilidade (alertas)
-- `test_monitor_dispara_alerta_ao_estourar_limite` prova o comportamento do
-  Observer; o campo `alerta_orcamento` na resposta de `POST /transacoes`
-  expõe isso ao cliente.
+## 2º — Testabilidade (subcaracterística de Manutenibilidade)
+
+**Por que é prioritário.** Para sustentar a evolução com segurança, é preciso
+provar que as regras de negócio continuam corretas sem depender de
+infraestrutura (banco, servidor). A testabilidade também é valorizada
+explicitamente nos critérios de avaliação (Clean Code).
+
+**Decisões arquiteturais que respondem a ela.**
+- Serviços recebem repositórios pela **abstração** (interface), permitindo
+  injetar implementações em memória nos testes.
+- Domínio sem dependências de framework: entidades testáveis isoladamente.
+
+**Métrica observável.** Cobertura das regras centrais (domínio, Factory,
+Strategy, Observer e casos de uso) por testes automatizados que rodem **sem
+banco e sem servidor**, em **< 5 s**. Hoje: **9 testes, ~1,7 s**, `pytest -q`.
+
+## 3º — Confiabilidade (*Reliability*) — foco em alertas de orçamento
+
+**Por que é prioritário.** A função de valor do sistema é ajudar o usuário a
+não estourar o orçamento. Registrar uma despesa que ultrapassa o limite **sem
+avisar** seria uma falha funcional silenciosa — pior do que um erro visível.
+
+**Decisões arquiteturais que respondem a ela.**
+- Padrão Observer (`MonitorDeOrcamento`): toda despesa registrada dispara a
+  avaliação do orçamento do mês; o alerta é desacoplado do canal de entrega
+  (ADR-004).
+- Validação de invariantes no domínio (`valor > 0`, descrição não vazia),
+  falhando cedo e de forma explícita (HTTP 422).
+
+**Métrica observável.** Taxa de alertas perdidos = **0%**: toda despesa que faz
+o total mensal exceder o limite deve disparar alerta. Verificado pelo teste
+`test_monitor_dispara_alerta_ao_estourar_limite` e pelo campo
+`alerta_orcamento` retornado em `POST /transacoes`.
+
+---
+
+## Atributos conscientemente despriorizados
+
+| Atributo | Por que não é prioridade aqui |
+|----------|-------------------------------|
+| Performance / Eficiência | Um usuário local, dados em memória; latência já é desprezível. |
+| Escalabilidade | Não há requisito de múltiplos usuários simultâneos no escopo. |
+| Segurança | Sem dados sensíveis de terceiros nem multiusuário no escopo atual (autenticação fica registrada como evolução futura — ver doc de API). |
+| Portabilidade | Atendida de graça pela abstração de repositório, mas não é o foco. |
 
 ## Trade-offs assumidos
 
-| Decisão | Ganho | Custo aceito |
-|---------|-------|--------------|
-| Armazenamento em memória | Simplicidade, projeto roda na hora, foco em arquitetura | Dados não persistem entre execuções (aceitável no escopo acadêmico) |
-| Camadas + abstrações | Manutenibilidade e testabilidade altas | Mais arquivos/indireção para um domínio pequeno |
-| FastAPI/Pydantic na borda | Validação e docs grátis | Acoplamento da camada `api/` ao framework (isolado, não vaza para o domínio) |
+| Decisão | Ganho (atributo favorecido) | Custo aceito |
+|---------|-----------------------------|--------------|
+| Armazenamento em memória | Simplicidade, testabilidade | Sem persistência entre execuções |
+| Camadas + abstrações | Manutenibilidade, testabilidade | Mais arquivos/indireção num domínio pequeno |
+| FastAPI/Pydantic na borda | Confiabilidade (validação), usabilidade da API | Acoplamento da camada `api/` ao framework (isolado) |

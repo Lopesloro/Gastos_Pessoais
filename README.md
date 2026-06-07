@@ -60,12 +60,15 @@ Detalhes e justificativas em [`docs/arquitetura.md`](docs/arquitetura.md).
 
 | Documento | Conteúdo |
 |-----------|----------|
-| [docs/arquitetura.md](docs/arquitetura.md) | Estilo arquitetural, camadas, diagrama, regra de dependência |
-| [docs/atributos-qualidade.md](docs/atributos-qualidade.md) | Atributos de qualidade priorizados e como foram atendidos |
+| **[docs/DOCUMENTO-FINAL.html](docs/DOCUMENTO-FINAL.html)** / **[.pdf](docs/DOCUMENTO-FINAL.pdf)** | **Documento final consolidado com as 10 seções obrigatórias** |
+| [docs/arquitetura.md](docs/arquitetura.md) | Estilo arquitetural (macro + interno), camadas, regra de dependência |
+| [docs/atributos-qualidade.md](docs/atributos-qualidade.md) | 3 atributos prioritários (ISO 25010) com métricas |
 | [docs/solid.md](docs/solid.md) | Os 5 princípios SOLID com exemplos do próprio código |
 | [docs/clean-code.md](docs/clean-code.md) | Práticas de Clean Code aplicadas |
 | [docs/padroes-gof.md](docs/padroes-gof.md) | Factory, Strategy e Observer: problema, solução, onde estão |
-| [docs/adr/](docs/adr/) | 5 ADRs (incluindo uma decisão **revertida**) |
+| [docs/api.md](docs/api.md) | Design de API: versionamento, erros, paginação, autenticação |
+| [adrs/](adrs/) | 5 ADRs (incluindo uma decisão **revertida**) |
+| [diagrams/](diagrams/) | Fontes Mermaid dos diagramas (componentes C4, classes GoF, sequência) |
 | [openapi/swagger.yaml](openapi/swagger.yaml) | Especificação OpenAPI da API |
 
 ## Endpoints
