@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<title>Trabalho Final — Controle de Gastos Pessoais</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+  window.addEventListener('load', function () {
+    if (window.mermaid) { mermaid.initialize({ startOnLoad: true, theme: 'neutral' }); }
+  });
+</script>
+<style>
+  @page { size: A4; margin: 22mm 18mm; }
+  * { box-sizing: border-box; }
+  body {
+    font-family: "Segoe UI", Calibri, Arial, sans-serif;
+    color: #1a1a1a; line-height: 1.55; font-size: 11.5pt; margin: 0;
+  }
+  h1, h2, h3 { color: #0f2a4a; line-height: 1.25; }
+  h1 { font-size: 17pt; border-bottom: 2px solid #0f2a4a; padding-bottom: 4px; margin-top: 26px; }
+  h2 { font-size: 13.5pt; margin-top: 20px; }
+  h3 { font-size: 12pt; margin-top: 16px; }
+  code, pre { font-family: "Cascadia Code", Consolas, monospace; }
+  pre {
+    background: #f4f6f8; border: 1px solid #dde3e8; border-radius: 6px;
+    padding: 10px 12px; font-size: 9.2pt; overflow-x: auto; white-space: pre-wrap;
+  }
+  code { background: #eef2f5; padding: 1px 4px; border-radius: 3px; font-size: 9.5pt; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: 10pt; }
+  th, td { border: 1px solid #cfd8df; padding: 6px 8px; text-align: left; vertical-align: top; }
+  th { background: #eaf0f5; }
+  .capa {
+    height: 245mm; display: flex; flex-direction: column; justify-content: center;
+    align-items: center; text-align: center; page-break-after: always;
+  }
+  .capa .inst { font-size: 13pt; text-transform: uppercase; letter-spacing: .05em; color: #444; }
+  .capa .titulo { font-size: 24pt; font-weight: 800; color: #0f2a4a; margin: 28px 0 6px; }
+  .capa .sub { font-size: 14pt; color: #555; }
+  .capa .bloco { margin-top: 60px; font-size: 12pt; }
+  .capa .ph { color: #b00; font-weight: 600; }
+  .secao { page-break-before: always; }
+  .mermaid { text-align: center; margin: 14px 0; }
+  .nota { background: #fff8e1; border-left: 4px solid #e0a800; padding: 8px 12px; font-size: 10pt; margin: 10px 0; }
+  ul, ol { margin: 6px 0 6px 22px; }
+  .sumario li { margin: 3px 0; }
+  blockquote { border-left: 3px solid #9bb3c9; margin: 10px 0; padding: 4px 12px; color: #33485e; background:#f6f9fc; }
+</style>
+</head>
+<body>
+
+<!-- ===================== CAPA ===================== -->
+<div class="capa">
+  <div class="inst"><span class="ph">[NOME DA INSTITUIÇÃO]</span></div>
+  <div class="inst" style="font-size:11pt"><span class="ph">[NOME DA DISCIPLINA]</span></div>
+  <div class="titulo">Controle de Gastos Pessoais</div>
+  <div class="sub">Projeto de software com arquitetura justificada,<br/>SOLID, Clean Code e padrões de projeto GoF</div>
+  <div class="bloco">
+    <strong>Integrantes do grupo:</strong><br/>
+    <span class="ph">[INTEGRANTE 1]</span> · <span class="ph">[INTEGRANTE 2]</span> ·
+    <span class="ph">[INTEGRANTE 3]</span><br/>
+    <span class="ph">[INTEGRANTE 4]</span> · <span class="ph">[INTEGRANTE 5]</span> ·
+    <span class="ph">[INTEGRANTE 6]</span><br/><br/>
+    <strong>Professor(a):</strong> <span class="ph">[NOME DO PROFESSOR]</span><br/>
+    <strong>Repositório:</strong> https://github.com/Lopesloro/Gastos_Pessoais<br/>
+    <strong>Data:</strong> Junho de 2026
+  </div>
+</div>
+
+<!-- ===================== SUMÁRIO ===================== -->
+<div class="secao">
+<h1>Sumário</h1>
+<ol class="sumario">
+  <li>Introdução</li>
+  <li>Atributos de Qualidade e Decisões Arquiteturais (ADRs)</li>
+  <li>Estilo Arquitetural (plano macro e interno)</li>
+  <li>Aplicação dos Princípios SOLID</li>
+  <li>Clean Code</li>
+  <li>Padrões de Projeto GoF</li>
+  <li>Design de API</li>
+  <li>Diagramas e Modelos</li>
+  <li>Conclusões</li>
+  <li>Referências Bibliográficas</li>
+</ol>
+<div class="nota">Os trechos marcados em <span class="ph">[vermelho]</span> são
+campos a preencher pelo grupo (instituição, disciplina, integrantes, professor
+e o livro-texto da disciplina nas referências).</div>
+</div>
+
+<!-- ===================== 1. INTRODUÇÃO ===================== -->
+<div class="secao">
+<h1>1. Introdução</h1>
+
+<h2>1.1 Apresentação e justificativa</h2>
+<p>O <strong>Controle de Gastos Pessoais</strong> é uma aplicação que permite
+ao usuário registrar suas <strong>receitas</strong> e <strong>despesas</strong>
+organizadas por <strong>categoria</strong>, acompanhar o <strong>resumo
+mensal</strong> (total de receitas, despesas e saldo) e receber
+<strong>alertas</strong> quando os gastos do mês ultrapassam um limite de
+orçamento. O projeto foi escolhido como <em>projeto novo</em>, com escopo
+deliberadamente delimitado para permitir a aplicação <strong>clara e
+demonstrável</strong> dos conceitos da disciplina — arquitetura, atributos de
+qualidade, SOLID, Clean Code e padrões GoF — sem que a complexidade acidental
+do domínio ofusque as decisões de design.</p>
+
+<h2>1.2 Objetivos</h2>
+<p><strong>Objetivo geral:</strong> desenvolver um software funcional cujas
+decisões arquiteturais sejam conscientes, justificadas e rastreáveis na
+documentação e no código.</p>
+<p><strong>Objetivos específicos:</strong></p>
+<ul>
+  <li>Registrar receitas e despesas por categoria, com validação de dados.</li>
+  <li>Calcular resumos (mensal e por categoria) de forma extensível.</li>
+  <li>Alertar o usuário ao estourar o orçamento mensal.</li>
+  <li>Expor uma API REST documentada via OpenAPI.</li>
+  <li>Evidenciar, com código real, SOLID, Clean Code e três padrões GoF.</li>
+</ul>
+
+<h2>1.3 Problema e público-alvo</h2>
+<p><strong>Problema:</strong> pessoas físicas frequentemente perdem o controle
+de para onde vai seu dinheiro e descobrem tarde que estouraram o orçamento. O
+sistema ataca esse problema centralizando os lançamentos, resumindo-os por
+período/categoria e <strong>avisando proativamente</strong> sobre o estouro do
+limite.</p>
+<p><strong>Público-alvo:</strong> usuário individual que deseja uma ferramenta
+simples de finanças pessoais, sem a complexidade de softwares contábeis.</p>
+</div>
+
+<!-- ===================== 2. ATRIBUTOS + ADRs ===================== -->
+<div class="secao">
+<h1>2. Atributos de Qualidade e Decisões Arquiteturais</h1>
+
+<h2>2A. Atributos de qualidade prioritários (ISO/IEC 25010:2023)</h2>
+<p>Dos oito atributos do modelo de qualidade de produto da norma, três foram
+eleitos prioritários, com justificativa, decisão arquitetural associada e
+métrica observável.</p>
+
+<h3>1º — Manutenibilidade</h3>
+<p><strong>Por que, e não outro:</strong> o objetivo do projeto é
+<em>evoluir e demonstrar design</em> (novos relatórios, novos tipos de
+transação, troca de armazenamento). Performance e escalabilidade não são
+prioridade num cenário mono-usuário local.</p>
+<p><strong>Decisões:</strong> Clean Architecture em camadas (ADR-001), padrões
+GoF isolando pontos de variação, SOLID (sobretudo Inversão de Dependência).</p>
+<p><strong>Métrica:</strong> adicionar um novo relatório ou tipo de transação
+deve exigir alteração em <strong>≤ 2 arquivos</strong> e <strong>nenhuma</strong>
+modificação em classes existentes (apenas adição).</p>
+
+<h3>2º — Testabilidade</h3>
+<p><strong>Por que:</strong> sustentar a evolução com segurança exige provar as
+regras sem depender de banco/servidor; também é valorizada nos critérios de
+avaliação.</p>
+<p><strong>Decisões:</strong> serviços recebem repositórios pela abstração;
+domínio sem dependências de framework.</p>
+<p><strong>Métrica:</strong> regras centrais cobertas por testes que rodem sem
+infraestrutura em <strong>&lt; 5 s</strong>. Atual: <strong>9 testes, ~1,7 s</strong>.</p>
+
+<h3>3º — Confiabilidade (alertas de orçamento)</h3>
+<p><strong>Por que:</strong> a função de valor é evitar o estouro do orçamento;
+não avisar seria uma falha funcional silenciosa.</p>
+<p><strong>Decisões:</strong> padrão Observer (ADR-004); validação de
+invariantes no domínio com erro explícito (HTTP 422).</p>
+<p><strong>Métrica:</strong> taxa de alertas perdidos = <strong>0%</strong>
+(toda despesa que excede o limite mensal dispara alerta) — verificado por teste
+e pelo campo <code>alerta_orcamento</code> da API.</p>
+
+<h2>2B. Registro de Decisões Arquiteturais (ADRs)</h2>
+<p>Cinco ADRs no formato canônico estão versionados na pasta
+<code>/adrs</code> do repositório. Resumo:</p>
+<table>
+  <tr><th>ADR</th><th>Título</th><th>Status</th><th>Essência</th></tr>
+  <tr><td>001</td><td>Clean Architecture em camadas</td><td>Accepted</td><td>Regra de dependência para dentro; portas no domínio.</td></tr>
+  <tr><td>002</td><td>Factory Method para transações</td><td>Accepted</td><td>Centralizar criação de Receita/Despesa.</td></tr>
+  <tr><td>003</td><td>Strategy para resumos</td><td>Accepted</td><td>Algoritmos de resumo intercambiáveis.</td></tr>
+  <tr><td>004</td><td>Observer para alertas</td><td>Accepted</td><td>Desacoplar a regra do canal de alerta.</td></tr>
+  <tr><td>005</td><td>Persistência SQLite → PostgreSQL</td><td><strong>Superseded / Revertido</strong></td><td>Decisão modificada: banco adiado; mantido armazenamento abstrato.</td></tr>
+</table>
+<div class="nota">O <strong>ADR-005</strong> atende à recomendação do enunciado
+de registrar pelo menos uma <strong>decisão revertida/modificada</strong> ao
+longo do desenvolvimento.</div>
+</div>
+
+<!-- ===================== 3. ESTILO ARQUITETURAL ===================== -->
+<div class="secao">
+<h1>3. Estilo Arquitetural</h1>
+
+<h2>3A. Plano macro — decomposição em unidades implantáveis</h2>
+<p>O sistema é um <strong>monólito modular</strong> (uma única unidade
+implantável, internamente organizada em módulos/camadas), <strong>não</strong>
+microsserviços.</p>
+<p><strong>Justificativa (ligada à seção 2A):</strong></p>
+<ul>
+  <li>O atributo prioritário é <strong>manutenibilidade</strong>, não
+  escalabilidade — e escalar partes de forma independente é a principal razão
+  para microsserviços.</li>
+  <li><strong>Equipe pequena</strong> e domínio enxuto: microsserviços trariam
+  custo operacional (deploys múltiplos, rede, observabilidade distribuída) sem
+  benefício para os atributos declarados.</li>
+  <li>O monólito <strong>modular</strong> preserva a evolução: fronteiras claras
+  permitem extrair um serviço no futuro, se necessário.</li>
+</ul>
+
+<h2>3B. Plano interno — organização do código</h2>
+<p>Adotou-se <strong>Clean Architecture</strong> (Martin) em quatro camadas, com
+a regra de dependência apontando sempre para dentro. As interfaces de
+repositório (portas) ficam no domínio; a infraestrutura as implementa
+(adaptadores) — variante hexagonal de portas e adaptadores.</p>
+<table>
+  <tr><th>Camada</th><th>Pasta</th><th>Responsabilidade</th></tr>
+  <tr><td>Domínio</td><td><code>domain/</code></td><td>Entidades, regras invariantes e portas (interfaces de repositório).</td></tr>
+  <tr><td>Aplicação</td><td><code>application/</code></td><td>Casos de uso que orquestram entidades e padrões.</td></tr>
+  <tr><td>Padrões</td><td><code>patterns/</code></td><td>Factory, Strategy, Observer.</td></tr>
+  <tr><td>Infraestrutura</td><td><code>infrastructure/</code></td><td>Adaptadores (repositórios em memória).</td></tr>
+  <tr><td>Interface</td><td><code>api/</code></td><td>FastAPI: rotas, DTOs e composition root (injeção de dependência).</td></tr>
+</table>
+<p>Diagrama de componentes (estilo C4) na Seção 8.</p>
+</div>
+
+<!-- ===================== 4. SOLID ===================== -->
+<div class="secao">
+<h1>4. Aplicação dos Princípios SOLID</h1>
+
+<h3>S — Single Responsibility</h3>
+<p><strong>Princípio:</strong> uma classe deve ter um único motivo para mudar.
+<strong>Aplicação:</strong> <code>ResumoMensalStrategy</code> só calcula o
+resumo mensal; <code>TransacaoService</code> só orquestra o registro; os DTOs
+(<code>api/schemas.py</code>) separam a representação HTTP das entidades.
+<strong>Efeito:</strong> mudar o JSON da API não toca a regra de negócio.</p>
+
+<h3>O — Open/Closed</h3>
+<p><strong>Princípio:</strong> aberto para extensão, fechado para modificação.
+<strong>Aplicação:</strong> novos relatórios entram como novas estratégias; o
+serviço não muda.</p>
+<pre><code>class ResumoService:
+    def gerar(self, strategy: ResumoStrategy) -> dict:
+        return strategy.calcular(self._transacao_repo.listar())</code></pre>
+<p><strong>Efeito:</strong> adicionar "resumo anual" não altera código testado.</p>
+
+<h3>L — Liskov Substitution</h3>
+<p><strong>Princípio:</strong> subtipos substituíveis pelo tipo base.
+<strong>Aplicação:</strong> <code>Receita</code> e <code>Despesa</code> são
+<code>Transacao</code>; diferem apenas no sinal de <code>valor_no_fluxo</code>.</p>
+<pre><code>Receita(...).valor_no_fluxo   #  +valor
+Despesa(...).valor_no_fluxo   #  -valor</code></pre>
+<p><strong>Efeito:</strong> <code>ResumoPorCategoriaStrategy</code> soma
+<code>valor_no_fluxo</code> sem checar o tipo concreto.</p>
+
+<h3>I — Interface Segregation</h3>
+<p><strong>Princípio:</strong> clientes não dependem de métodos que não usam.
+<strong>Aplicação:</strong> <code>CategoriaRepository</code> e
+<code>TransacaoRepository</code> são interfaces separadas; <code>AlertaObserver</code>
+expõe um único método. <strong>Efeito:</strong> cada cliente depende só do que
+precisa.</p>
+
+<h3>D — Dependency Inversion</h3>
+<p><strong>Princípio:</strong> alto nível depende de abstrações, não de
+detalhes. <strong>Aplicação:</strong></p>
+<pre><code># application/servicos.py  (alto nível)
+def __init__(self, transacao_repo: TransacaoRepository): ...
+
+# infrastructure/repositorios_memoria.py  (baixo nível)
+class TransacaoRepositoryMemoria(TransacaoRepository): ...
+
+# api/dependencias.py  (composition root injeta a concreta)
+TransacaoService(_transacao_repo, _categoria_repo, _monitor)</code></pre>
+<p><strong>Efeito:</strong> torna o ADR-005 (troca de banco) barato e os testes
+independentes de infraestrutura.</p>
+</div>
+
+<!-- ===================== 5. CLEAN CODE ===================== -->
+<div class="secao">
+<h1>5. Clean Code</h1>
+<ul>
+  <li><strong>Nomes que revelam intenção:</strong> <code>valor_no_fluxo</code>
+  (valor com sinal), <code>MonitorDeOrcamento.avaliar()</code>,
+  <code>AlertaObserver.notificar()</code>.</li>
+  <li><strong>Funções pequenas, um nível de abstração:</strong>
+  <code>TransacaoService.registrar()</code> lê como narrativa; detalhes em
+  <code>_total_despesas_do_mes()</code>.</li>
+  <li><strong>Sem números/textos mágicos:</strong> limite de orçamento em
+  constante nomeada <code>LIMITE_MENSAL</code>; tipos em <code>Enum
+  TipoTransacao</code>.</li>
+  <li><strong>Sem duplicação (DRY):</strong> conversão entidade→DTO
+  centralizada em <code>_to_transacao_out()</code>; lógica de qual subclasse
+  criar só na <code>TransacaoFactory</code>.</li>
+  <li><strong>Baixo acoplamento, alta coesão:</strong> camadas isoladas;
+  domínio sem <code>import</code> de FastAPI.</li>
+  <li><strong>Comentários explicam o "porquê":</strong> os cabeçalhos de módulo
+  justificam decisões de design, não repetem o código.</li>
+  <li><strong>Tratamento de erros explícito:</strong> invariantes validadas em
+  <code>__post_init__</code> (falha cedo); API traduz <code>ValueError</code>
+  em <code>HTTP 422</code>.</li>
+  <li><strong>Testabilidade:</strong> 9 testes automatizados cobrindo domínio,
+  Factory, Observer, Strategy e API.</li>
+</ul>
+</div>
+
+<!-- ===================== 6. GoF ===================== -->
+<div class="secao">
+<h1>6. Padrões de Projeto GoF</h1>
+
+<h2>6.1 Factory Method (Criacional)</h2>
+<p><strong>Problema:</strong> a API recebe o tipo como texto; espalhar
+<code>if/else</code> para instanciar <code>Receita</code>/<code>Despesa</code>
+acoplaria os chamadores às subclasses. <strong>Solução:</strong> centralizar a
+criação na fábrica.</p>
+<pre><code>class TransacaoFactory:
+    @staticmethod
+    def criar(tipo, descricao, valor, categoria, data=None):
+        construtores = {TipoTransacao.RECEITA: Receita,
+                        TipoTransacao.DESPESA: Despesa}
+        return construtores[tipo](descricao=descricao, valor=valor,
+                                  categoria=categoria, data=data or date.today())</code></pre>
+<p><strong>Benefício:</strong> Aberto/Fechado (novo tipo = 1 linha).
+<strong>Custo:</strong> uma indireção a mais.</p>
+
+<h2>6.2 Strategy (Comportamental)</h2>
+<p><strong>Problema:</strong> múltiplas formas de resumir (mensal, por
+categoria, futura anual) virariam um <code>if/elif</code> frágil.
+<strong>Solução:</strong> cada algoritmo é uma estratégia intercambiável.</p>
+<pre><code>class ResumoStrategy(ABC):
+    @abstractmethod
+    def calcular(self, transacoes: list[Transacao]) -> dict: ...</code></pre>
+<p><strong>Benefício:</strong> novo relatório sem tocar nos existentes.
+<strong>Custo:</strong> uma classe por relatório.</p>
+
+<h2>6.3 Observer (Comportamental)</h2>
+<p><strong>Problema:</strong> alertar o estouro de orçamento sem acoplar a
+regra ao canal (log/e-mail/push). <strong>Solução:</strong>
+<code>MonitorDeOrcamento</code> (Subject) notifica observadores inscritos.</p>
+<pre><code>class MonitorDeOrcamento:
+    def avaliar(self, total_gasto_mes: Decimal) -> bool:
+        if total_gasto_mes > self.limite_mensal:
+            for obs in self._observadores:
+                obs.notificar(total_gasto_mes, self.limite_mensal)
+            return True
+        return False</code></pre>
+<p><strong>Benefício:</strong> novo canal de alerta não muda o disparo.
+<strong>Custo:</strong> indireção entre quem dispara e quem trata.</p>
+<p>Diagrama de classes dos três padrões na Seção 8.</p>
+</div>
+
+<!-- ===================== 7. API ===================== -->
+<div class="secao">
+<h1>7. Design de API</h1>
+<p><strong>Estilo:</strong> REST com <strong>OpenAPI 3.x</strong> (gerado
+automaticamente pelo FastAPI; arquivo <code>openapi/swagger.yaml</code> no
+repositório; UI interativa em <code>/docs</code>). O domínio é orientado a
+recursos com CRUD claro — REST mapeia isso naturalmente; GraphQL/gRPC seriam
+sobredimensionados.</p>
+<table>
+  <tr><th>Método</th><th>Rota</th><th>Descrição</th></tr>
+  <tr><td>POST</td><td>/categorias</td><td>Cria categoria</td></tr>
+  <tr><td>GET</td><td>/categorias</td><td>Lista categorias</td></tr>
+  <tr><td>POST</td><td>/transacoes</td><td>Registra receita/despesa (avalia orçamento)</td></tr>
+  <tr><td>GET</td><td>/transacoes</td><td>Lista transações</td></tr>
+  <tr><td>GET</td><td>/resumo/mensal</td><td>Resumo mensal (Strategy)</td></tr>
+  <tr><td>GET</td><td>/resumo/por-categoria</td><td>Saldo por categoria (Strategy)</td></tr>
+</table>
+<p><strong>Versionamento:</strong> por caminho de URL (<code>/api/v1</code>);
+mudanças retrocompatíveis não incrementam a versão; quebras geram
+<code>/api/v2</code> com transição.</p>
+<p><strong>Erros:</strong> status HTTP + corpo <code>{"detail": "..."}</code>;
+validação e violação de regra → <code>422</code>; rota inexistente →
+<code>404</code>; criação → <code>201</code>.</p>
+<p><strong>Paginação (planejada):</strong> <code>offset/limit</code> via query
+string, retrocompatível. <strong>Autenticação:</strong> ausente no escopo
+mono-usuário; evolução planejada com OAuth2 + JWT.</p>
+</div>
+
+<!-- ===================== 8. DIAGRAMAS ===================== -->
+<div class="secao">
+<h1>8. Diagramas e Modelos</h1>
+<p>Fontes versionadas em <code>/diagrams</code> (Mermaid). Reproduzidos abaixo.</p>
+
+<h2>8.1 Componentes (estilo C4)</h2>
+<pre class="mermaid">
+flowchart TB
+    Usuario([Usuário final])
+    Navegador["Interface Web"]
+    subgraph API["Interface — api/"]
+        Rotas["rotas.py"]
+        DI["dependencias.py (Composition Root)"]
+    end
+    subgraph APP["Aplicação — application/"]
+        TServ["TransacaoService"]
+        RServ["ResumoService"]
+    end
+    subgraph PAT["Padrões GoF — patterns/"]
+        Factory["Factory"]
+        Strategy["Strategy"]
+        Observer["Observer"]
+    end
+    subgraph DOM["Domínio — domain/"]
+        Entidades["Entidades"]
+        Portas["Portas (ABC)"]
+    end
+    subgraph INFRA["Infraestrutura — infrastructure/"]
+        RepoMem["Repositórios em Memória"]
+    end
+    Usuario --> Navegador --> Rotas
+    Rotas --> TServ & RServ
+    DI -.injeta.-> TServ & RServ
+    TServ --> Factory
+    TServ --> Observer
+    RServ --> Strategy
+    TServ --> Portas
+    RServ --> Portas
+    Factory --> Entidades
+    RepoMem -.implementa.-> Portas
+    Portas --> Entidades
+</pre>
+
+<h2>8.2 Classes — padrões GoF</h2>
+<pre class="mermaid">
+classDiagram
+    class Transacao { <<abstract>> +tipo() +valor_no_fluxo() }
+    class Receita
+    class Despesa
+    class TransacaoFactory { +criar() Transacao }
+    Transacao <|-- Receita
+    Transacao <|-- Despesa
+    TransacaoFactory ..> Receita : cria
+    TransacaoFactory ..> Despesa : cria
+    class ResumoStrategy { <<interface>> +calcular() }
+    class ResumoMensalStrategy
+    class ResumoPorCategoriaStrategy
+    class ResumoService { +gerar(strategy) }
+    ResumoStrategy <|.. ResumoMensalStrategy
+    ResumoStrategy <|.. ResumoPorCategoriaStrategy
+    ResumoService ..> ResumoStrategy : usa
+    class AlertaObserver { <<interface>> +notificar() }
+    class AlertaLogObserver
+    class MonitorDeOrcamento { <<subject>> +avaliar() }
+    AlertaObserver <|.. AlertaLogObserver
+    MonitorDeOrcamento o--> AlertaObserver : notifica
+</pre>
+
+<h2>8.3 Sequência — registrar uma despesa</h2>
+<pre class="mermaid">
+sequenceDiagram
+    actor U as Usuário
+    participant W as Interface Web
+    participant R as API
+    participant S as TransacaoService
+    participant F as TransacaoFactory
+    participant Repo as Repositório
+    participant M as MonitorDeOrcamento
+    U->>W: envia despesa
+    W->>R: POST /transacoes
+    R->>S: registrar(...)
+    S->>F: criar(DESPESA, ...)
+    F-->>S: Despesa
+    S->>Repo: salvar(despesa)
+    S->>M: avaliar(total_mes)
+    alt total > limite
+        M-->>S: true (alerta)
+    else dentro do limite
+        M-->>S: false
+    end
+    S-->>R: (transacao, alerta)
+    R-->>W: 201 + alerta_orcamento
+</pre>
+</div>
+
+<!-- ===================== 9. CONCLUSÕES ===================== -->
+<div class="secao">
+<h1>9. Conclusões</h1>
+<p><strong>Resultados.</strong> O sistema cumpre seus objetivos: registra
+receitas/despesas, gera resumos e alerta sobre estouro de orçamento, com uma
+API REST documentada e interface web. A arquitetura em camadas, somada a SOLID
+e aos três padrões GoF, resultou num código de baixo acoplamento e alta
+testabilidade — comprovado por 9 testes que rodam sem infraestrutura.</p>
+<p><strong>Efetividade das práticas.</strong> A Inversão de Dependência foi a
+decisão de maior retorno: tornou a reversão do ADR-005 trivial e os testes
+independentes de banco. O Strategy e o Observer pagaram seu custo de indireção
+ao tornar resumos e alertas extensíveis sem modificar código existente.</p>
+<p><strong>Limitações e próximos passos.</strong></p>
+<ul>
+  <li><strong>Persistência:</strong> dados em memória não sobrevivem ao
+  reinício; o próximo passo é o adaptador SQLite/PostgreSQL (já viabilizado
+  pela porta abstrata).</li>
+  <li><strong>Autenticação/multiusuário:</strong> fora do escopo atual; evolução
+  com OAuth2 + JWT.</li>
+  <li><strong>Cobertura de testes:</strong> ampliar para casos de borda e
+  incluir medição de cobertura.</li>
+  <li><strong>O que faríamos diferente:</strong> introduzir a porta de
+  persistência com um adaptador SQLite desde o início, mantendo a simplicidade,
+  para já entregar dados persistentes.</li>
+</ul>
+</div>
+
+<!-- ===================== 10. REFERÊNCIAS ===================== -->
+<div class="secao">
+<h1>10. Referências Bibliográficas</h1>
+<p style="font-size:10.5pt; line-height:1.7">
+<span class="ph">[LIVRO-TEXTO DA DISCIPLINA — preencher autor, título, edição,
+editora e ano em formato ABNT NBR 6023]</span>.<br/><br/>
+GAMMA, Erich; HELM, Richard; JOHNSON, Ralph; VLISSIDES, John. <strong>Design
+Patterns</strong>: elements of reusable object-oriented software. Reading:
+Addison-Wesley, 1994.<br/><br/>
+MARTIN, Robert C. <strong>Clean Code</strong>: a handbook of agile software
+craftsmanship. Upper Saddle River: Prentice Hall, 2008.<br/><br/>
+MARTIN, Robert C. <strong>Clean Architecture</strong>: a craftsman's guide to
+software structure and design. Upper Saddle River: Prentice Hall, 2017.<br/><br/>
+FOWLER, Martin. <strong>Patterns of Enterprise Application Architecture</strong>.
+Boston: Addison-Wesley, 2002.<br/><br/>
+INTERNATIONAL ORGANIZATION FOR STANDARDIZATION. <strong>ISO/IEC 25010:2023</strong>:
+Systems and software engineering — Systems and software Quality Requirements and
+Evaluation (SQuaRE) — Product quality model. Genebra: ISO, 2023.<br/><br/>
+NYGARD, Michael. <strong>Documenting Architecture Decisions</strong>. 2011.
+Disponível em: cognitect.com. Acesso em: jun. 2026.<br/><br/>
+ISO/IEC/IEEE. <strong>ISO/IEC/IEEE 42010:2011</strong>: Systems and software
+engineering — Architecture description. Genebra: ISO, 2011.
+</p>
+</div>
+
+</body>
+</html>
